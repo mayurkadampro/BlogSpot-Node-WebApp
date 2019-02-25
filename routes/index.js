@@ -7,7 +7,15 @@ var loggedin = function (req, res, next) {
   if (req.isAuthenticated()) {
     next()
   } else {
-    res.redirect('/login')
+    res.redirect('/login');
+  }
+}
+
+var loggedinForEdit = function (req, res, next) {
+  if (req.isAuthenticated()) {
+    next()
+  } else {
+    res.send('You Must Login First');
   }
 }
 
@@ -31,13 +39,18 @@ router.get('/signup', function (req, res, next) {
   res.render('signup');
 });
 
-router.get('/profile',loggedin, function (req, res, next) {
-  res.render('profile', {
-    user: req.user
+router.get('/profile',loggedin,function (req, res, next) {
+	BlogPost.find({}, function(err, allPosts) {
+    if (err) {
+      console.log('SOMETHING WENT WRONG:');
+      console.log(err);
+    } else {
+      res.render('profile', {user: req.user,blogPosts: allPosts});
+    };
   })
 });
 
-router.get('/logout', function (req, res) {
+router.get('/logout',function (req, res) {
   req.logout()
   res.redirect('/')
 });
@@ -79,7 +92,7 @@ router.post('/blogs', function(req, res) {
     if(err) {
       console.log(err);
     } else {
-      res.redirect('/');
+      res.redirect('/profile');
     }
   });
 });
@@ -97,7 +110,7 @@ router.get('/blogs/:id', function(req, res) {
 });
 
 // EDIT ROUTE
-router.get('/blogs/:id/edit', function(req, res) {
+router.get('/blogs/:id/edit',loggedinForEdit, function(req, res) {
   let id = req.params.id;
   BlogPost.findById(id, function(err, post) {
     if (err) {
@@ -153,7 +166,7 @@ router.post('/blogs/:id/comments', function(req, res) {
 });
 
 // DETLETE COMMENTS
-router.delete('/blogs/:postId/comments/:commentId/delete', (req, res) => {
+router.delete('/blogs/:postId/comments/:commentId/delete',loggedinForEdit, (req, res) => {
   let postId = req.params.postId;
   let commentId = req.params.commentId;
   console.log('postId: ', postId);
@@ -177,7 +190,7 @@ router.delete('/blogs/:postId/comments/:commentId/delete', (req, res) => {
 });
 
 // DELETE ROUTE
-router.get('/blogs/:id/delete', function(req, res) {
+router.get('/blogs/:id/delete',loggedinForEdit, function(req, res) {
   let id = req.params.id;
   BlogPost.findById(id, function(err, blogPost) {
     if (err) {
@@ -190,7 +203,7 @@ router.get('/blogs/:id/delete', function(req, res) {
 });
 
 // DELETE ROUTE
-router.delete('/blogs/:id', function(req, res) {
+router.delete('/blogs/:id',loggedinForEdit, function(req, res) {
   let id = req.params.id;
   BlogPost.remove({ _id: id }, function(err) {
     if (err) {
