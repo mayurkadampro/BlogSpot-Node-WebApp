@@ -19,10 +19,18 @@ var loggedinForEdit = function (req, res, next) {
   }
 }
 
+var auth = function (req, res, next) {
+  if (req.isAuthenticated()) {
+    next()
+  } else {
+    res.redirect('/blogs');
+  }
+}
+
 
 /* GET home page. */
-router.get('/', function(req, res) {
-  res.redirect('/blogs');
+router.get('/',auth, function(req, res) {
+  res.redirect('/profile');
 });
 
 // NEW ROUTE
@@ -40,7 +48,8 @@ router.get('/signup', function (req, res, next) {
 });
 
 router.get('/profile',loggedin,function (req, res, next) {
-	BlogPost.find({}, function(err, allPosts) {
+	let id = req.params.id;
+	BlogPost.find(id, function(err, allPosts) {
     if (err) {
       console.log('SOMETHING WENT WRONG:');
       console.log(err);
@@ -50,10 +59,66 @@ router.get('/profile',loggedin,function (req, res, next) {
   })
 });
 
+// SHOW ROUTE FOR LOGIN
+router.get('/profile/:id', function(req, res) {
+  let id = req.params.id;
+  BlogPost.findById(id, function(err, post) {
+    if (err) {
+      console.log(err);
+    } else {
+      res.render('show', {user: req.user,post});
+    };
+  });
+});
+
+// EDIT ROUTE by Login
+router.get('/profile/:id/editUser', function(req, res,next) {
+  let id = req.params.id;
+  BlogPost.findById(id, function(err, post) {
+    if (err) {
+      console.log('SOMETHING WENT WRONG')
+      console.log(err);
+    } else {
+      console.log('LOADING PAGE');
+      console.log(post.post.stringContent);
+      res.render('editUser', {user: req.user,post});
+    };
+  });
+});
+
+// UPDATE ROUTE
+router.put('/profile/:id/editUser', function(req, res) {
+  let id = req.params.id;
+  let content = req.body.content;
+  let formattedContent = content.split('\r\n');
+  let editedPost = {
+    title: req.body.title,
+    post: {
+      image: req.body.image,
+      stringContent: content,
+      content: formattedContent
+    },
+    site: {
+      name: req.body.citationName,
+      url: req.body.citationUrl
+    }
+  };
+  BlogPost.update({ _id: id }, editedPost, function(err) {
+    if (err) {
+      console.log(err)
+    } else {
+      res.redirect(`/profile/${ id }`);
+    };
+  });
+});
+
+
+
 router.get('/logout',function (req, res) {
   req.logout()
   res.redirect('/')
 });
+/////////////////////////////////////// FOR BLOG ///////////////////////////////
 
 router.get('/blogs', function(req, res) {
   BlogPost.find({}, function(err, allPosts) {
@@ -109,6 +174,8 @@ router.get('/blogs/:id', function(req, res) {
   });
 });
 
+
+
 // EDIT ROUTE
 router.get('/blogs/:id/edit',loggedinForEdit, function(req, res) {
   let id = req.params.id;
@@ -123,6 +190,8 @@ router.get('/blogs/:id/edit',loggedinForEdit, function(req, res) {
     };
   });
 });
+
+
 
 // UPDATE ROUTE
 router.put('/blogs/:id/edit', function(req, res) {

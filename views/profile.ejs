@@ -22,7 +22,7 @@
         <% }; %>
         <div class="post">
           <p><%= blogPosts[i].post.content[0].substring(0, 100) %> . . .</p>
-          <a class='write-post' href="/blogs/<%= blogPosts[i]._id %>">Read More</a>
+          <a class='write-post' href="/profile/<%= blogPosts[i]._id %>">Read More</a>
         </div>
 
         <% if (blogPosts[i].site.name !== '' && blogPosts[i].site.url !== '') { %>
