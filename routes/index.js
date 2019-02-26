@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var BlogPost = require('../models/blogpost');
+var Comment = require('../models/comment');
 var passport = require("passport");
 
 var loggedin = function (req, res, next) {
@@ -35,7 +36,7 @@ router.get('/',auth, function(req, res) {
 
 // NEW ROUTE
 router.get('/new', function(req, res) {
-  res.render('new');
+  res.render('new',{user: req.user});
 });
 
 
@@ -46,6 +47,13 @@ router.get('/login', function (req, res, next) {
 router.get('/signup', function (req, res, next) {
   res.render('signup');
 });
+
+router.get('/logout',function (req, res) {
+  req.logout()
+  res.redirect('/')
+});
+
+////////////////////////////Profile/////////////////////////////////
 
 router.get('/profile',loggedin,function (req, res, next) {
 	let id = req.params.id;
@@ -112,12 +120,34 @@ router.put('/profile/:id/editUser', function(req, res) {
   });
 });
 
-
-
-router.get('/logout',function (req, res) {
-  req.logout()
-  res.redirect('/')
+// DELETE ROUTE
+router.get('/profile/:id/delete',loggedinForEdit, function(req, res) {
+  let id = req.params.id;
+  BlogPost.findById(id, function(err, blogPost) {
+    if (err) {
+      console.log(err);
+    } else {
+      console.log(blogPost);
+      res.render('delete', {user: req.user, blogPost });
+    };
+  });
 });
+
+// DELETE ROUTE
+router.delete('/profile/:id',loggedinForEdit, function(req, res) {
+  let id = req.params.id;
+  BlogPost.remove({ _id: id }, function(err) {
+    if (err) {
+      console.log(err);
+    } else {
+      res.redirect('/profile');
+    }
+  })
+});
+
+
+
+
 /////////////////////////////////////// FOR BLOG ///////////////////////////////
 
 router.get('/blogs', function(req, res) {
@@ -219,6 +249,8 @@ router.put('/blogs/:id/edit', function(req, res) {
   });
 });
 
+///////////////////////////////////COMMENT //////////////////////////////////////
+
 // ADD COMMENTS
 router.post('/blogs/:id/comments', function(req, res) {
   let comment = req.body;
@@ -258,29 +290,6 @@ router.delete('/blogs/:postId/comments/:commentId/delete',loggedinForEdit, (req,
   });
 });
 
-// DELETE ROUTE
-router.get('/blogs/:id/delete',loggedinForEdit, function(req, res) {
-  let id = req.params.id;
-  BlogPost.findById(id, function(err, blogPost) {
-    if (err) {
-      console.log(err);
-    } else {
-      console.log(blogPost);
-      res.render('delete', { blogPost });
-    };
-  });
-});
 
-// DELETE ROUTE
-router.delete('/blogs/:id',loggedinForEdit, function(req, res) {
-  let id = req.params.id;
-  BlogPost.remove({ _id: id }, function(err) {
-    if (err) {
-      console.log(err);
-    } else {
-      res.redirect('/');
-    }
-  })
-});
 
 module.exports = router;

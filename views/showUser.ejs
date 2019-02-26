@@ -1,4 +1,4 @@
-<% include partials/header %>
+<% include partials/header-login %>
 
 <div class="container">
 
@@ -62,9 +62,11 @@
 		
       </article>
 
-      <a class="write-post" href="/blogs/<%= post._id %>/edit">EDIT</a>
+      <a class="write-post" href="/profile/<%= post._id %>/editUser">EDIT</a>
 
-      <a class="delete-button" href="/blogs/<%= post._id %>/delete">DELETE</a>
+      <a class="delete-button" href="/profile/<%= post._id %>/delete">DELETE</a>
+	  
+	  <a class="button" href="/profile">Go Back</a>
 
     </div>
 
