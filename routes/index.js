@@ -66,7 +66,7 @@ router.get('/profile/:id', function(req, res) {
     if (err) {
       console.log(err);
     } else {
-      res.render('show', {user: req.user,post});
+      res.render('showUser', {user: req.user,post});
     };
   });
 });
