@@ -6,7 +6,7 @@
     <link rel="stylesheet" href="/css/style.css" />
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
 	  <style>
-	  img {
+	  .profile-pic {
 		border-radius: 50%;
 		}
 	</style>
@@ -14,7 +14,7 @@
   <body>
     <div id="top-bar">
       <h1>
-	  	  <img src="<%= user.thumbnail%>">
+	  	  <img class="profile-pic" src="<%= user.thumbnail%>">
         Welcome, <%= user.username %></h1>
 	  <a id="write-button" class="button" href="/new">Create Post</a>
 	  <a id="write-button" class="button" href="/logout">Logout</a>
